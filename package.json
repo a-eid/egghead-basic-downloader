@@ -1,0 +1,21 @@
+{
+  "name": "egghead-downloader",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "babel-node .",
+    "dev": "nodemon --exec  babel-node ."
+  },
+  "dependencies": {
+    "@babel/core": "^7.1.2",
+    "@babel/node": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "cheerio": "^1.0.0-rc.2",
+    "download": "^7.1.0",
+    "nodemon": "^1.18.5",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5",
+    "youtube-dl": "^1.12.2"
+  }
+}
