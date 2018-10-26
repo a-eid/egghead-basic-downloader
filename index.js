@@ -10,11 +10,23 @@ import { spawnSync, exec } from "child_process"
 const getInfo = promisify(youtubedl.getInfo)
 const execp = promisify(exec)
 
-// let url = process.argv[2]
+let url = process.argv[2]
 
-let url =
-  "https://egghead.io/courses/fully-connected-neural-networks-with-keras?utm_source=drip&utm_medium=email&utm_term=python&utm_content=fully-connected-neural-networks-with-keras&__s=2affdc2bwdzc5hd4cifu"
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
+const download = async cmd => {
+  console.log("downloading lessons...")
+  await execp(cmd).catch(async err => {
+    console.log(`something went wront retrying...`)
+    console.log(`sleeping for 30 seconds`)
+    await sleep(30000)
+    download(cmd)
+  })
+  console.log(`sleeping for 10 seconds`)
+  await sleep(10000)
+}
 // document.querySelectorAll("[href*='/lessons/']").forEach( a => console.log(a.href))
 async function main(url) {
   const html = await r(url)
@@ -32,8 +44,11 @@ async function main(url) {
   urls.forEach(url => {
     fs.appendFileSync(urlsPath, `${url} \n`)
   })
-  const cmd = `cd courses/${slug} && youtube-dl -o "%(autonumber)s-%(title)s.%(ext)s" -a list.txt`
-  await execp(cmd)
+
+  console.log(`sleeping 20 seconds between downloads`)
+  const cmd = `cd courses/${slug} && youtube-dl -o "%(autonumber)s-%(title)s.%(ext)s" -a list.txt --socket-timeout 5 --sleep-interval 20`
+  await download(cmd)
 }
 
+console.log("initiate download...")
 main(url)
