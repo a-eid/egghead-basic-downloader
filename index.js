@@ -6,7 +6,7 @@ import r from "request-promise-native"
 import cheerio from "cheerio"
 import { promisify } from "util"
 import { spawnSync, exec } from "child_process"
-import logger from './lib/logger'
+import logger from "./lib/logger"
 
 const getInfo = promisify(youtubedl.getInfo)
 const execp = promisify(exec)
@@ -20,23 +20,33 @@ function sleep(ms) {
 const download = async cmd => {
   logger("downloading lessons...")
   await execp(cmd).catch(async err => {
-    logger(`${err} - something went wront retrying...`, {result: 'error'})
+    logger(`${err} - something went wront retrying...`, { result: "error" })
     logger(`sleeping for 30 seconds`)
     await sleep(30000)
     download(cmd)
   })
-  logger(`Success! sleeping for 10 seconds`, {result: 'success'})
+  logger(`Success! sleeping for 10 seconds`, { result: "success" })
   await sleep(10000)
 }
 // document.querySelectorAll("[href*='/lessons/']").forEach( a => console.log(a.href))
 async function main(url) {
   const html = await r(url)
   const $ = cheerio.load(html)
-  const {
-    course: { slug, lessons },
-  } = JSON.parse($(`[data-component-name]`).html(), null, 2).course
-  const urls = lessons.map(l => l.lesson_url.replace("/api/v1", ""))
 
+  let { course, playlist } = JSON.parse($(`[data-component-name]`).html())
+  let slug
+  let lessons = []
+
+  if (course) {
+    slug = course.course.slug
+    lessons = course.course.lessons.map(item => item.url)
+  } else if (playlist) {
+    slug = playlist.slug
+    lessons = playlist.items.map(item => item.url)
+  }
+
+  // strip `/api/v1`
+  lessons = lessons.map(l => l.replace("/api/v1", ""))
   let commonPath = [__dirname, "courses"]
 
   try {
@@ -49,7 +59,7 @@ async function main(url) {
 
   const urlsPath = path.join(...commonPath, slug, "list.txt")
   fs.existsSync(urlsPath) && fs.unlinkSync(urlsPath)
-  urls.forEach(url => {
+  lessons.forEach(url => {
     fs.appendFileSync(urlsPath, `${url} \n`)
   })
 
