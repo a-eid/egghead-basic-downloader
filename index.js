@@ -19,13 +19,11 @@ function sleep(ms) {
 const download = async cmd => {
   console.log("downloading lessons...")
   await execp(cmd).catch(async err => {
-    console.log(`something went wront retrying...`)
-    console.log(`sleeping for 30 seconds`)
+    console.log(`something went wront retrying...${err}`)
+    console.log(`retrying after 30 seconds`)
     await sleep(30000)
     download(cmd)
   })
-  console.log(`sleeping for 10 seconds`)
-  await sleep(10000)
 }
 // document.querySelectorAll("[href*='/lessons/']").forEach( a => console.log(a.href))
 async function main(url) {
@@ -35,10 +33,17 @@ async function main(url) {
     course: { slug, lessons },
   } = JSON.parse($(`[data-component-name]`).html(), null, 2).course
   const urls = lessons.map(l => l.lesson_url.replace("/api/v1", ""))
+
   let commonPath = [__dirname, "courses"]
+
+  try {
+    fs.mkdirSync(path.join(__dirname, "courses"))
+  } catch {}
+
   try {
     fs.mkdirSync(path.join(...commonPath, slug))
   } catch {}
+
   const urlsPath = path.join(...commonPath, slug, "list.txt")
   fs.existsSync(urlsPath) && fs.unlinkSync(urlsPath)
   urls.forEach(url => {
