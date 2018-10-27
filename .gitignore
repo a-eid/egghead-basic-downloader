@@ -75,3 +75,6 @@ typings/
 # FuseBox cache
 .fusebox/
 courses/*
+
+# Mac generated files
+.DS_Store

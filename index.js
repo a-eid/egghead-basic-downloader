@@ -6,6 +6,7 @@ import r from "request-promise-native"
 import cheerio from "cheerio"
 import { promisify } from "util"
 import { spawnSync, exec } from "child_process"
+import logger from './lib/logger'
 
 const getInfo = promisify(youtubedl.getInfo)
 const execp = promisify(exec)
@@ -17,14 +18,14 @@ function sleep(ms) {
 }
 
 const download = async cmd => {
-  console.log("downloading lessons...")
+  logger("downloading lessons...")
   await execp(cmd).catch(async err => {
-    console.log(`something went wront retrying...`)
-    console.log(`sleeping for 30 seconds`)
+    logger(`${err} - something went wront retrying...`, {result: 'error'})
+    logger(`sleeping for 30 seconds`)
     await sleep(30000)
     download(cmd)
   })
-  console.log(`sleeping for 10 seconds`)
+  logger(`Success! sleeping for 10 seconds`, {result: 'success'})
   await sleep(10000)
 }
 // document.querySelectorAll("[href*='/lessons/']").forEach( a => console.log(a.href))
@@ -45,10 +46,10 @@ async function main(url) {
     fs.appendFileSync(urlsPath, `${url} \n`)
   })
 
-  console.log(`sleeping 20 seconds between downloads`)
+  logger(`sleeping 20 seconds between downloads`)
   const cmd = `cd courses/${slug} && youtube-dl -o "%(autonumber)s-%(title)s.%(ext)s" -a list.txt --socket-timeout 5 --sleep-interval 20`
   await download(cmd)
 }
 
-console.log("initiate download...")
+logger("initiate download...")
 main(url)
