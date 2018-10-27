@@ -50,8 +50,8 @@ async function main(url) {
     fs.appendFileSync(urlsPath, `${url} \n`)
   })
 
-  console.log(`sleeping 20 seconds between downloads`)
-  const cmd = `cd courses/${slug} && youtube-dl -o "%(autonumber)s-%(title)s.%(ext)s" -a list.txt --socket-timeout 5 --sleep-interval 20`
+  console.log(`sleeping 30 seconds between downloads`)
+  const cmd = `cd courses/${slug} && youtube-dl -o "%(autonumber)s-%(title)s.%(ext)s" -a list.txt --socket-timeout 5 --sleep-interval 30`
   await download(cmd)
 }
 
