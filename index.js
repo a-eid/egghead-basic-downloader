@@ -36,10 +36,17 @@ async function main(url) {
     course: { slug, lessons },
   } = JSON.parse($(`[data-component-name]`).html(), null, 2).course
   const urls = lessons.map(l => l.lesson_url.replace("/api/v1", ""))
+
   let commonPath = [__dirname, "courses"]
+
+  try {
+    fs.mkdirSync(path.join(__dirname, "courses"))
+  } catch {}
+
   try {
     fs.mkdirSync(path.join(...commonPath, slug))
   } catch {}
+
   const urlsPath = path.join(...commonPath, slug, "list.txt")
   fs.existsSync(urlsPath) && fs.unlinkSync(urlsPath)
   urls.forEach(url => {
